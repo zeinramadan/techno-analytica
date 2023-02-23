@@ -1,0 +1,65 @@
+1676584717646	geckodriver	INFO	Listening on 127.0.0.1:62960
+1676584718038	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "--remote-debugging-port" "62961" "--r ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofileozDFNo"
+WebDriver BiDi listening on ws://127.0.0.1:62961
+UNSUPPORTED (log once): POSSIBLE ISSUE: unit 1 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
+DevTools listening on ws://127.0.0.1:62961/devtools/browser/ad46837e-68e4-4a44-9a53-f8059316d411
+1676584754281	geckodriver	INFO	Listening on 127.0.0.1:63036
+1676584754792	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "--remote-debugging-port" "63037" "--r ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofileSH2UwM"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1676584755482	Marionette	INFO	Marionette enabled
+1676584755815	Marionette	INFO	Listening on port 63057
+console.error: "Warning: unrecognized command line flag -remote-allow-hosts\n"
+Read port: 63057
+WebDriver BiDi listening on ws://127.0.0.1:63037
+1676584756020	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofileSH2UwM/search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:63037/devtools/browser/1c8fa765-7dca-4534-bdff-c96139e2af64
+1676584760158	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+1676584785228	Marionette	INFO	Stopped listening on port 63057
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1676584790804	geckodriver	INFO	Listening on 127.0.0.1:63207
+1676584791336	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "--remote-debugging-port" "63208" "--r ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofileLKTZAF"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1676584791899	Marionette	INFO	Marionette enabled
+1676584792186	Marionette	INFO	Listening on port 63215
+console.error: "Warning: unrecognized command line flag -remote-allow-hosts\n"
+Read port: 63215
+WebDriver BiDi listening on ws://127.0.0.1:63208
+1676584792372	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofileLKTZAF/search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:63208/devtools/browser/9e5b00be-56fc-46be-bdac-3d491713b2f5
+1676584795089	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+1676584815967	geckodriver	INFO	Listening on 127.0.0.1:63332
+1676584816485	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "--remote-debugging-port" "63333" "--r ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofilePx0bpp"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1676584816904	Marionette	INFO	Marionette enabled
+1676584816995	Marionette	INFO	Listening on port 63338
+Read port: 63338
+console.error: "Warning: unrecognized command line flag -remote-allow-hosts\n"
+WebDriver BiDi listening on ws://127.0.0.1:63333
+1676584817225	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofilePx0bpp/search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:63333/devtools/browser/6db5b4d6-8050-4ca7-967f-39f0a07f50ce
+1676584819794	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+1676584829495	geckodriver	INFO	Listening on 127.0.0.1:63457
+1676584830008	mozrunner::runner	INFO	Running command: "/Applications/Firefox.app/Contents/MacOS/firefox-bin" "--marionette" "--remote-debugging-port" "63458" "--r ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofileSkvIms"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+1676584830455	Marionette	INFO	Marionette enabled
+1676584830723	Marionette	INFO	Listening on port 63464
+Read port: 63464
+console.error: "Warning: unrecognized command line flag -remote-allow-hosts\n"
+WebDriver BiDi listening on ws://127.0.0.1:63458
+1676584830843	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+console.warn: SearchSettings: "get: No settings file exists, new profile?" (new NotFoundError("Could not open the file at /var/folders/gy/8y7knk811fvb_pjkt__lpckc0000gn/T/rust_mozprofileSkvIms/search.json.mozlz4", (void 0)))
+DevTools listening on ws://127.0.0.1:63458/devtools/browser/e0d05d64-e3d8-4a2f-868f-c7e7835f8afc
+1676584833373	Marionette	WARN	Ignoring event 'DOMContentLoaded' because document has an invalid readyState of 'complete'.
+1676584915418	Marionette	INFO	Stopped listening on port 63464
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1676584916794	Marionette	INFO	Stopped listening on port 63338
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.
+1676584918299	Marionette	INFO	Stopped listening on port 63215
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.

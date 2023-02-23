@@ -1,0 +1,10 @@
+{
+  "devDependencies": {
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^18.13.0",
+    "soundcloud.ts": "^0.4.9"
+  }
+}
