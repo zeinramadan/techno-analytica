@@ -3,6 +3,7 @@ TODO: add multithreading via 1 or more accounts
 Instaloader app wrapped in a tkinter GUI
 Usage: enter list of instagram usernames seperated by ','
 """
+import concurrent.futures
 import threading
 import tkinter as tk
 import instaloader
@@ -106,15 +107,19 @@ class Application(tk.Frame):
         # list of usernames to scrape
         usernames = [x.strip() for x in self.input.get().split(',')]
 
-        threads = []
-        # iterate through usernames
-        for username in usernames:
-            t = threading.Thread(target=self.scrape_user_data, args=(L, username))
-            t.start()
-            threads.append(t)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            # create a future for each username
+            future_to_username = {executor.submit(self.scrape_user_data, L, username): username for username in usernames}
 
-        for t in threads:
-            t.join()
+            # iterate over completed futures as they finish
+            for future in concurrent.futures.as_completed(future_to_username):
+                username = future_to_username[future]
+                try:
+                    user_data = future.result()
+                    # do something with the scraped user data
+                except Exception as e:
+                    # handle any exceptions that occurred during scraping
+                    print(f'Error scraping data for {username}: {e}')
 
 
 if __name__ == '__main__':
