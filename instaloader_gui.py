@@ -1,10 +1,10 @@
 """
-TODO: add multithreading via 1 or more accounts
 Instaloader app wrapped in a tkinter GUI
 Usage: enter list of instagram usernames seperated by ','
+
+Multithreading using ThreadPoolExecutor over 5 concurrent followers for 5 concurrent users.
 """
 import concurrent.futures
-import threading
 import tkinter as tk
 import instaloader
 import json
@@ -82,7 +82,6 @@ class Application(tk.Frame):
                 with open(os.path.join(post_dir, 'comments.json'), 'w', encoding='utf-8') as f:
                     json.dump(comments, f, ensure_ascii=False)
 
-
     def scrape_user_data(self, L, username):
         # create directory to store data
         os.makedirs(username, exist_ok=True)
@@ -104,8 +103,9 @@ class Application(tk.Frame):
         # get list of followers
         followers = self.scrape_followers(L, username)
 
-        # process 10 followers at a time using a thread pool
+        # process 5 followers at a time using a thread pool
         with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+
             future_to_follower = {}
             for follower in followers:
                 future_to_follower[executor.submit(self.scrape_follower_data, L, username, follower)] = follower
@@ -115,8 +115,9 @@ class Application(tk.Frame):
                 follower = future_to_follower[future]
                 try:
                     follower_data = future.result()
-                    # do something with the scraped follower data
+
                 except Exception as e:
+
                     # handle any exceptions that occurred during scraping
                     print(f'Error scraping data for {follower}: {e}')
 
@@ -143,7 +144,7 @@ class Application(tk.Frame):
                 username = future_to_username[future]
                 try:
                     user_data = future.result()
-                    # do something with the scraped user data
+
                 except Exception as e:
                     # handle any exceptions that occurred during scraping
                     print(f'Error scraping data for {username}: {e}')
