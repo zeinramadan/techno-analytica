@@ -1,4 +1,5 @@
 """
+TODO: add multithreading via 1 or more accounts
 Instaloader app wrapped in a tkinter GUI
 Usage: enter list of instagram usernames seperated by ','
 """
@@ -39,8 +40,18 @@ class Application(tk.Frame):
         # list of usernames to scrape
         usernames = [x.strip() for x in self.input.get().split(',')]
 
+        artist_count = 0
+        artist_total = len(usernames)
         # iterate through usernames
         for username in usernames:
+
+            # Log run state
+            print("{} - Number {} out of {}".format(username, artist_count, artist_total))
+            print("Collecting account info of {}".format(username))
+
+            # Increment for next iteration
+            artist_count += 1
+
             # create directory to store data
             os.makedirs(username, exist_ok=True)
 
@@ -59,8 +70,15 @@ class Application(tk.Frame):
                 json.dump(profile_info, f, ensure_ascii=False)
 
             # get list of followers
+            number_of_followers = profile.followers
+            print("{} - Gathering data on followers. Total number of followers: {}".format(username, number_of_followers))
             followers = []
+            counter = 1
             for follower in profile.get_followers():
+
+                if counter == 1 or counter % 1000 == 0:
+                    print("Follower number {} out of {}".format(username, counter, number_of_followers))
+                counter += 1
 
                 followers.append(follower.username)
 
@@ -80,6 +98,8 @@ class Application(tk.Frame):
 
                 # get follower posts if account is public
                 if not follower.is_private:
+
+                    print("{} - gathering post data for follower".format(username))
                     for post in follower.get_posts():
 
                         # create directory for post
@@ -104,6 +124,9 @@ class Application(tk.Frame):
                         # save comments to file
                         with open(os.path.join(post_dir, 'comments.json'), 'w', encoding='utf-8') as f:
                             json.dump(comments, f, ensure_ascii=False)
+
+            print("Finished collection for {}.".format(username))
+            print("===========================")
 
 
 if __name__ == '__main__':
