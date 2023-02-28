@@ -27,8 +27,63 @@ class Application(tk.Frame):
         self.input.pack(side="top")
         self.submit.pack(side="bottom")
 
-    def scrape_user_data(self, L, username):
+    def scrape_followers(self, L, username):
+        # get profile
+        profile = instaloader.Profile.from_username(L.context, username)
 
+        # get list of followers
+        followers = []
+        for follower in profile.get_followers():
+            followers.append(follower.username)
+
+        return followers
+
+    def scrape_follower_data(self, L, username, follower):
+        # create directory for follower
+        os.makedirs(os.path.join(username, follower), exist_ok=True)
+
+        # get follower
+        follower = instaloader.Profile.from_username(L.context, follower)
+
+        # get follower info
+        follower_info = {
+            'username': follower.username,
+            'name': follower.full_name,
+            'bio': follower.biography
+        }
+
+        # save follower info to file
+        with open(os.path.join(username, follower.username, 'profile.json'), 'w', encoding='utf-8') as f:
+            json.dump(follower_info, f, ensure_ascii=False)
+
+        # get follower posts if account is public
+        if not follower.is_private:
+            for post in follower.get_posts():
+                # create directory for post
+                post_dir = os.path.join(username, follower.username, post.shortcode)
+                os.makedirs(post_dir, exist_ok=True)
+
+                # get post info
+                post_info = {
+                    'caption': post.caption,
+                    'geotag': post.location.name if post.location else None
+                }
+
+                # save post info to file
+                with open(os.path.join(post_dir, 'post.json'), 'w', encoding='utf-8') as f:
+                    json.dump(post_info, f, ensure_ascii=False)
+
+                # get comments
+                comments = []
+                for comment in post.get_comments():
+                    comments.append({'text': comment.text, 'username': comment.owner.username})
+
+                # save comments to file
+                with open(os.path.join(post_dir, 'comments.json'), 'w', encoding='utf-8') as f:
+                    json.dump(comments, f, ensure_ascii=False)
+
+
+    def scrape_user_data(self, L, username):
         # create directory to store data
         os.makedirs(username, exist_ok=True)
 
@@ -47,51 +102,23 @@ class Application(tk.Frame):
             json.dump(profile_info, f, ensure_ascii=False)
 
         # get list of followers
-        followers = []
-        for follower in profile.get_followers():
+        followers = self.scrape_followers(L, username)
 
-            followers.append(follower.username)
+        # process 10 followers at a time using a thread pool
+        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+            future_to_follower = {}
+            for follower in followers:
+                future_to_follower[executor.submit(self.scrape_follower_data, L, username, follower)] = follower
 
-            # create directory for follower
-            os.makedirs(os.path.join(username, follower.username), exist_ok=True)
-
-            # get follower info
-            follower_info = {
-                'username': follower.username,
-                'name': follower.full_name,
-                'bio': follower.biography
-            }
-
-            # save follower info to file
-            with open(os.path.join(username, follower.username, 'profile.json'), 'w', encoding='utf-8') as f:
-                json.dump(follower_info, f, ensure_ascii=False)
-
-            # get follower posts if account is public
-            if not follower.is_private:
-                for post in follower.get_posts():
-
-                    # create directory for post
-                    post_dir = os.path.join(username, follower.username, post.shortcode)
-                    os.makedirs(post_dir, exist_ok=True)
-
-                    # get post info
-                    post_info = {
-                        'caption': post.caption,
-                        'geotag': post.location.name if post.location else None
-                    }
-
-                    # save post info to file
-                    with open(os.path.join(post_dir, 'post.json'), 'w', encoding='utf-8') as f:
-                        json.dump(post_info, f, ensure_ascii=False)
-
-                    # get comments
-                    comments = []
-                    for comment in post.get_comments():
-                        comments.append({'text': comment.text, 'username': comment.owner.username})
-
-                    # save comments to file
-                    with open(os.path.join(post_dir, 'comments.json'), 'w', encoding='utf-8') as f:
-                        json.dump(comments, f, ensure_ascii=False)
+            # iterate over completed futures as they finish
+            for future in concurrent.futures.as_completed(future_to_follower):
+                follower = future_to_follower[future]
+                try:
+                    follower_data = future.result()
+                    # do something with the scraped follower data
+                except Exception as e:
+                    # handle any exceptions that occurred during scraping
+                    print(f'Error scraping data for {follower}: {e}')
 
     def run_instaloader(self):
 
