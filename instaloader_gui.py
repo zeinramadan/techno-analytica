@@ -104,7 +104,7 @@ class Application(tk.Frame):
         followers = self.scrape_followers(L, username)
 
         # process 5 followers at a time using a thread pool
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
 
             future_to_follower = {}
             for follower in followers:
@@ -135,7 +135,7 @@ class Application(tk.Frame):
         # list of usernames to scrape
         usernames = [x.strip() for x in self.input.get().split(',')]
 
-        with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        with concurrent.futures.ThreadPoolExecutor(max_workers=2) as executor:
             # create a future for each username
             future_to_username = {executor.submit(self.scrape_user_data, L, username): username for username in usernames}
 
