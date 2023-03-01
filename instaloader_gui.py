@@ -1,10 +1,12 @@
 """
-TODO: add multithreading via 1 or more accounts
+TODO: remove looping through posts and comments for each follower
 Instaloader app wrapped in a tkinter GUI
 Usage: enter list of instagram usernames seperated by ','
 """
 
 import tkinter as tk
+import random
+from time import sleep
 
 
 class Application(tk.Frame):
@@ -71,13 +73,15 @@ class Application(tk.Frame):
 
             # get list of followers
             number_of_followers = profile.followers
-            print("{} - Gathering data on followers. Total number of followers: {}".format(username, number_of_followers))
+            print("{} - Gathering data on followers. Total number of followers: {}".format(username,
+                                                                                           number_of_followers))
             followers = []
             counter = 1
             for follower in profile.get_followers():
 
                 if counter == 1 or counter % 1000 == 0:
-                    print("Follower number {} out of {}".format(username, counter, number_of_followers))
+                    print("Processed {} out of {}. {} accounts remaining".format(counter, number_of_followers,
+                                                                                 number_of_followers-counter))
                 counter += 1
 
                 followers.append(follower.username)
@@ -96,34 +100,9 @@ class Application(tk.Frame):
                 with open(os.path.join(username, follower.username, 'profile.json'), 'w', encoding='utf-8') as f:
                     json.dump(follower_info, f, ensure_ascii=False)
 
-                # get follower posts if account is public
-                if not follower.is_private:
-
-                    print("{} - gathering post data for follower".format(username))
-                    for post in follower.get_posts():
-
-                        # create directory for post
-                        post_dir = os.path.join(username, follower.username, post.shortcode)
-                        os.makedirs(post_dir, exist_ok=True)
-
-                        # get post info
-                        post_info = {
-                            'caption': post.caption,
-                            'geotag': post.location.name if post.location else None
-                        }
-
-                        # save post info to file
-                        with open(os.path.join(post_dir, 'post.json'), 'w', encoding='utf-8') as f:
-                            json.dump(post_info, f, ensure_ascii=False)
-
-                        # get comments
-                        comments = []
-                        for comment in post.get_comments():
-                            comments.append({'text': comment.text, 'username': comment.owner.username})
-
-                        # save comments to file
-                        with open(os.path.join(post_dir, 'comments.json'), 'w', encoding='utf-8') as f:
-                            json.dump(comments, f, ensure_ascii=False)
+                # Sleep so we don't overwhelm the API, use a random value between 4-6 seconds each time
+                wait_time = random.uniform(4, 6)
+                sleep(wait_time)
 
             print("Finished collection for {}.".format(username))
             print("===========================")
