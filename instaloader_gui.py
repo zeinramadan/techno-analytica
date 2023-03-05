@@ -1,5 +1,5 @@
 """
-TODO: remove looping through posts and comments for each follower
+TODO: code only iterates through 50 followers, need to make it iterate through all
 Instaloader app wrapped in a tkinter GUI
 Usage: enter list of instagram usernames seperated by ','
 """
@@ -35,13 +35,14 @@ class Application(tk.Frame):
 
         # Log in
         username = "throwawayaccountyahyeet"
-        password = "CBUrQBbdVxJ6m53"
+        password = "hqMe5xCBQ8R8EYV"
         L.context.log("Logging in as %s..." % username)
         L.context.login(username, password)
 
         # list of usernames to scrape
         usernames = [x.strip() for x in self.input.get().split(',')]
 
+        exceptions = 0
         artist_count = 0
         artist_total = len(usernames)
         # iterate through usernames
@@ -61,11 +62,17 @@ class Application(tk.Frame):
             profile = instaloader.Profile.from_username(L.context, username)
 
             # get profile info
-            profile_info = {
-                'username': profile.username,
-                'name': profile.full_name,
-                'bio': profile.biography
-            }
+            try:
+                profile_info = {
+                    'username': profile.username,
+                    'name': profile.full_name,
+                    'bio': profile.biography
+                }
+            except Exception as e:
+                exceptions += 1
+                print("Caught exception while fetching profile info. Total so far: {}".format(exceptions))
+                print(e)
+                continue
 
             # save profile info to file
             with open(os.path.join(username, 'profile.json'), 'w', encoding='utf-8') as f:
@@ -89,20 +96,22 @@ class Application(tk.Frame):
                 # create directory for follower
                 os.makedirs(os.path.join(username, follower.username), exist_ok=True)
 
-                # get follower info
-                follower_info = {
-                    'username': follower.username,
-                    'name': follower.full_name,
-                    'bio': follower.biography
-                }
+                try:
+                    # get follower info
+                    follower_info = {
+                        'username': follower.username,
+                        'name': follower.full_name,
+                        'bio': follower.biography
+                    }
+                except Exception as e:
+                    exceptions += 1
+                    print("Caught exception while fetching follower info. Total so far: {}".format(exceptions))
+                    print(e)
+                    continue
 
                 # save follower info to file
                 with open(os.path.join(username, follower.username, 'profile.json'), 'w', encoding='utf-8') as f:
                     json.dump(follower_info, f, ensure_ascii=False)
-
-                # Sleep so we don't overwhelm the API, use a random value between 4-6 seconds each time
-                wait_time = random.uniform(4, 6)
-                sleep(wait_time)
 
             print("Finished collection for {}.".format(username))
             print("===========================")
