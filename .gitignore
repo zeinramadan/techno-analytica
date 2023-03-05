@@ -1,5 +1,7 @@
-build/
-dist/
+releases/M1/build/
+releases/M1/dist/
 alarico___/
 techno-analytica.spec
 archive/node_modules/
+build/
+dist/
