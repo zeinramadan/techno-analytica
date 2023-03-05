@@ -5,8 +5,6 @@ Usage: enter list of instagram usernames seperated by ','
 """
 
 import tkinter as tk
-import random
-from time import sleep
 
 
 class Application(tk.Frame):
