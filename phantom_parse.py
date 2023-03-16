@@ -1,33 +1,36 @@
 import json
-
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
 
-# Function to make an HTTP request and parse the contents of a URL
-def parse_url(url):
-    response = requests.get(url)
-    if response.status_code == 200:
-        soup = BeautifulSoup(response.text, "html.parser")
-        return soup
-    else:
-        print(f"Failed to fetch {url}, status code: {response.status_code}")
-        return None
+def get_profile_description(profile_url):
 
-
-# Function to load a URL with Selenium and parse the contents
-def selenium_parse(url):
+    # Set selenium params
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
     chrome_service = Service(executable_path="./chromedriver_mac_arm64/chromedriver")
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
-    driver.get(url)
+
+    # Make request and parse html - Need to add some randomness in here so we don't get our IP address blocked by IG
+    driver.get(profile_url)
     html_content = driver.page_source
     driver.quit()
-    soup = BeautifulSoup(html_content, "html.parser")
-    return soup
+
+    # Extract element with the bio
+    soup = BeautifulSoup(html_content, 'html.parser')
+    script_element = soup.find('script', {'type': 'application/ld+json'})
+
+    # clean the json and return the bio
+    if script_element:
+        json_data = json.loads(script_element.string)
+
+        if 'description' in json_data:
+            return json_data['description']
+
+    return None
 
 
 if __name__ == '__main__':
@@ -36,30 +39,9 @@ if __name__ == '__main__':
     file_path = "result_short.csv"
     df = pd.read_csv(file_path)
 
-    # Set up Selenium WebDriver options
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")  # Run in headless mode (without opening a browser window)
+    # Apply the get_profile_description() function to each row in the DataFrame
+    # This will loop through all profile URLs and fetch the bio for each URL
+    df['Bio'] = df['profileUrl'].apply(get_profile_description)
 
-    # Loop through each URL in the 'ProfileURL' column
-    for index, row in df.iterrows():
-        profile_url = row['profileUrl']
-        parsed_content = selenium_parse(profile_url)
-
-        if parsed_content:
-
-            # Extract the bio from the json response
-            script_element = parsed_content.find('script', {'type': 'application/ld+json'})
-            json_data = json.loads(script_element.string)
-
-            # Add the bio to the pandas dataframe
-            json_data['description']
-
-            # Write parsed HTML to file
-            output_file_name = f"output_{index}.html"
-            with open(output_file_name, "w", encoding="utf-8") as output_file:
-                output_file.write(str(parsed_content))
-
-            # Write JSON to file
-            json_file_name = f"json_output_{index}.json"
-            with open(json_file_name, 'w', encoding='utf-8') as f:
-                json.dump(json_data, f, ensure_ascii=False)
+    # Save the modified DataFrame to a new CSV file
+    df.to_csv("output_with_bio.csv", index=False)
