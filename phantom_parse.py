@@ -8,12 +8,11 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
 
-def get_profile_description(profile_url, driver):
+def get_profile_description(profile_url, chrome_driver):
 
-    # Make request and parse html - Need to add some randomness in here so we don't get our IP address blocked by IG
-    driver.get(profile_url)
-    html_content = driver.page_source
-    driver.quit()
+    # Make request and parse html
+    chrome_driver.get(profile_url)
+    html_content = chrome_driver.page_source
 
     # Extract element with the bio
     soup = BeautifulSoup(html_content, 'html.parser')
@@ -41,6 +40,7 @@ if __name__ == '__main__':
     # and add the bio to each CSV file
     input_folder_path = "phantom_files"
     output_folder_path = "augmented_phantom_files"
+    # change this to just iterate through all files in the path using os.walk()
     csv_files = [f"{input_folder_path}/result.csv"]
 
     print("Accounts to iterate through: {}".format(len(csv_files)))
@@ -56,7 +56,10 @@ if __name__ == '__main__':
         df = pd.read_csv(csv_file)
         bios_list = []
         profile_count = 1
+        total = len(df['profileUrl'].values.tolist())
         for profileUrl in df['profileUrl'].values.tolist():
+
+            print("{}/{} - Processing {}".format(profile_count, total, profileUrl))
 
             # Sleep 15mins every 6000 iterations or 30s every 200 iterations. 10 seconds otherwise between each call
             if profile_count % 6000 == 0:
@@ -98,3 +101,6 @@ if __name__ == '__main__':
         # Log completion
         print("Run complete for {}".format(csv_file))
         print("===============================")
+
+    # Close driver after completing
+    driver.quit()
