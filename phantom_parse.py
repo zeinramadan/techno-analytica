@@ -1,7 +1,7 @@
 import json
 import os
 import random
-from time import sleep
+from time import sleep, time
 import pandas as pd
 from bs4 import BeautifulSoup
 from selenium import webdriver
@@ -63,9 +63,12 @@ if __name__ == '__main__':
 
         # Read CSV, extract profileUrls
         df = pd.read_csv(csv_file)
+
+        # Initialize variables, data structures, and timer
         bios_list = []
         profile_counter = 1
         total = len(df['profileUrl'].values.tolist())
+        start_time = time()
         for profileUrl in df['profileUrl'].values.tolist():
 
             print("{}/{} - Processing {}".format(profile_counter, total, profileUrl))
@@ -91,6 +94,12 @@ if __name__ == '__main__':
             profile_counter += 1
             total_profile_count += 1
 
+        # Calculate time taken
+        end_time = time()  # Record the end time
+        duration_seconds = end_time - start_time
+        duration_minutes, duration_seconds = divmod(duration_seconds, 60)
+        duration_hours, duration_minutes = divmod(duration_minutes, 60)
+
         # create the dataframe
         data = {
             "id": df["id"].values.tolist(),
@@ -109,7 +118,8 @@ if __name__ == '__main__':
         output_df.to_csv(f"{output_folder_path}/{os.path.basename(csv_file).rstrip('.csv')}_with_bios.csv", index=False)
 
         # Log completion
-        print("Run complete for {}".format(csv_file))
+        print("Run complete for {}. Time taken: {} hours, {} minutes, and {} seconds"
+              .format(csv_file, int(duration_hours), int(duration_minutes), int(duration_seconds)))
         print("===============================")
 
     # Close driver after completing
