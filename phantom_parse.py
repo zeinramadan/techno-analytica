@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+import re
 
 # TODO: improve logging using logging library
 
@@ -23,10 +24,19 @@ def get_profile_description(profile_url, chrome_driver):
 
     # clean the json and return the bio
     if script_element:
-        json_data = json.loads(script_element.string)
+        json_data = json.loads(script_element.string.replace("\n", " "))
 
         if 'description' in json_data:
             return json_data['description']
+
+    else:
+        # write html to file (we may be getting rate limited and hence that's why we can't retrieve the data for the
+        # remaining followers, inspect HTML of parsed data)
+        username = re.search(r"(?<=www\.instagram\.com/)[\w\-_]+", profileUrl).group(0)
+        output_file_name = f"{username}.html"
+        file_path = os.path.join("no_bio_html", output_file_name)
+        with open(file_path, "w", encoding="utf-8") as output_file:
+            output_file.write(html_content)
 
     return None
 
