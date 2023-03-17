@@ -8,6 +8,8 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 
+# TODO: improve logging using logging library
+
 
 def get_profile_description(profile_url, chrome_driver):
 
@@ -52,19 +54,20 @@ if __name__ == '__main__':
     # var to keep track of how many requests we have made in total. Sleeping based on this
     total_profile_count = 1
 
-    print("Accounts to iterate through: {}".format(len(csv_files)))
+    print("Accounts (csv files) to iterate through: {}".format(len(csv_files)))
 
-    loop_counter = 1 # counter to count how many followers for this specific instagram account we iterated through
+    # counter to keep count csv files we iterated through
+    csv_counter = 1
     for csv_file in csv_files:
 
         # Log which account we are processing
-        print("Starting collection for {}. Number {} out of {}".format(csv_file, loop_counter, len(csv_files)))
-        loop_counter += 1
+        print("Starting collection for {}. Number {} out of {}".format(csv_file, csv_counter, len(csv_files)))
+        csv_counter += 1
 
         # Read CSV, extract profileUrls
         df = pd.read_csv(csv_file)
 
-        # Initialize variables, data structures, and timer
+        # Initialize variables, counter to track profile iterations, data structures, and timer
         bios_list = []
         profile_counter = 1
         total = len(df['profileUrl'].values.tolist())
