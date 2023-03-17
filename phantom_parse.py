@@ -10,6 +10,7 @@ from selenium.webdriver.chrome.service import Service
 import re
 
 # TODO: improve logging using logging library
+# TODO: add rate limit detection, if rate limit detected, write dataframe then wait for x minutes before starting again
 
 
 def get_profile_description(profile_url, chrome_driver):
@@ -30,6 +31,7 @@ def get_profile_description(profile_url, chrome_driver):
             return json_data['description']
 
     else:
+        print("no response...")
         # write html to file (we may be getting rate limited and hence that's why we can't retrieve the data for the
         # remaining followers, inspect HTML of parsed data)
         username = re.search(r"(?<=www\.instagram\.com/)[\w\-_]+", profileUrl).group(0)
