@@ -1,4 +1,5 @@
 import json
+import os
 import random
 from time import sleep
 import pandas as pd
@@ -40,34 +41,42 @@ if __name__ == '__main__':
     # and add the bio to each CSV file
     input_folder_path = "phantom_files"
     output_folder_path = "augmented_phantom_files"
-    # change this to just iterate through all files in the path using os.walk()
-    csv_files = [f"{input_folder_path}/result.csv"]
+
+    # Create the output directory if it doesn't exist
+    if not os.path.exists(output_folder_path):
+        os.makedirs(output_folder_path)
+
+    # Iterate through all CSV files in the input_folder_path
+    csv_files = [os.path.join(input_folder_path, f) for f in os.listdir(input_folder_path) if f.endswith('.csv')]
+
+    # var to keep track of how many requests we have made in total. Sleeping based on this
+    total_profile_count = 1
 
     print("Accounts to iterate through: {}".format(len(csv_files)))
 
-    counter = 1
+    loop_counter = 1 # counter to count how many followers for this specific instagram account we iterated through
     for csv_file in csv_files:
 
         # Log which account we are processing
-        print("Starting collection for {}. Number {} out of {}".format(csv_file, counter, len(csv_files)))
-        counter += 1
+        print("Starting collection for {}. Number {} out of {}".format(csv_file, loop_counter, len(csv_files)))
+        loop_counter += 1
 
         # Read CSV, extract profileUrls
         df = pd.read_csv(csv_file)
         bios_list = []
-        profile_count = 1
+        profile_counter = 1
         total = len(df['profileUrl'].values.tolist())
         for profileUrl in df['profileUrl'].values.tolist():
 
-            print("{}/{} - Processing {}".format(profile_count, total, profileUrl))
+            print("{}/{} - Processing {}".format(profile_counter, total, profileUrl))
 
             # Sleep 15mins every 6000 iterations or 30s every 200 iterations. 10 seconds otherwise between each call
-            if profile_count % 6000 == 0:
+            if total_profile_count % 6000 == 0:
                 # Sleep for duration between 12-14 minutes
                 delay = random.uniform(720, 840)
                 sleep(delay)
 
-            elif profile_count % 200 == 0:
+            elif total_profile_count % 200 == 0:
                 # Sleep for duration between 20-30 seconds
                 delay = random.uniform(20, 30)
                 sleep(delay)
@@ -79,7 +88,8 @@ if __name__ == '__main__':
 
             bio = get_profile_description(profileUrl, driver)
             bios_list.append(bio)
-            profile_count += 1
+            profile_counter += 1
+            total_profile_count += 1
 
         # create the dataframe
         data = {
@@ -96,7 +106,7 @@ if __name__ == '__main__':
         output_df = pd.DataFrame(data)
 
         # Save the modified DataFrame to a new CSV file
-        output_df.to_csv(f"{output_folder_path}/{csv_file}_with_bios.csv", index=False)
+        output_df.to_csv(f"{output_folder_path}/{os.path.basename(csv_file).rstrip('.csv')}_with_bios.csv", index=False)
 
         # Log completion
         print("Run complete for {}".format(csv_file))
