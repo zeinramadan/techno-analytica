@@ -7,13 +7,38 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
-import re
 
-# TODO: improve logging using logging library
-# TODO: add rate limit detection, if rate limit detected, write dataframe then wait for x minutes before starting again
+# TODO: improve logging
 
 
-def get_profile_description(profile_url, chrome_driver):
+class AllProxiesExhaustedException(Exception):
+    pass
+
+
+def create_driver_with_proxy(proxy, chrm_options):
+    """
+    function to create a new driver using a given proxy
+    :param proxy: a proxy from the proxy list
+    :param chrm_options: chrome options
+    :return: new driver using the proxy
+    """
+
+    chrm_options.add_argument(f"--proxy-server={proxy}")
+    chrm_service = Service(executable_path="./chromedriver_mac_arm64/chromedriver")
+
+    return webdriver.Chrome(service=chrm_service, options=chrm_options)
+
+
+def get_profile_description(profile_url, chrome_driver, no_response_count, proxy_list, chrm_options):
+    """
+    function to get the bio of instagram profile using selenium. also contains logic to use proxies if rate limited
+    :param profile_url: instagram url of a given profile
+    :param chrome_driver: driver object
+    :param no_response_count: dictionary to keep count of how many no responses we got
+    :param proxy_list: list of proxies to use
+    :param chrm_options: chrome options
+    :return: bio of instagram account if available
+    """
 
     # Make request and parse html
     chrome_driver.get(profile_url)
@@ -32,13 +57,35 @@ def get_profile_description(profile_url, chrome_driver):
 
     else:
         print("no response...")
-        # write html to file (we may be getting rate limited and hence that's why we can't retrieve the data for the
-        # remaining followers, inspect HTML of parsed data)
-        username = re.search(r"(?<=www\.instagram\.com/)[\w\-_]+", profileUrl).group(0)
-        output_file_name = f"{username}.html"
-        file_path = os.path.join("no_bio_html", output_file_name)
-        with open(file_path, "w", encoding="utf-8") as output_file:
-            output_file.write(html_content)
+        no_response_count["count"] += 1
+
+        # Rate limit detected. Reset counter, try again using a proxy.
+        if no_response_count["count"] == 2:
+
+            # Reset no response count because we will be using a new proxy
+            no_response_count["count"] = 0
+
+            # If proxy list is not exhausted
+            if proxy_list:
+
+                print("Rate limited by IG. Trying new proxy")
+
+                # Quit current driver, create new driver using one of the proxies from the list
+                chrome_driver.quit()
+                proxy = random.choice(proxy_list)
+                print("Trying with proxy {}".format(proxy))
+                chrome_driver = create_driver_with_proxy(proxy, chrm_options)
+
+                # Remove the chosen proxy from the list of available proxies
+                remaining_proxies = proxy_list.copy()
+                remaining_proxies.remove(proxy)
+
+                # Recursive call to try again with the new proxy
+                return get_profile_description(profile_url, chrome_driver, remaining_proxies, chrm_options)
+
+            else:
+                print("All proxies exhausted. Writing to dataframe and exiting code. Please re-run later.")
+                raise AllProxiesExhaustedException()
 
     return None
 
@@ -51,8 +98,7 @@ if __name__ == '__main__':
     chrome_service = Service(executable_path="./chromedriver_mac_arm64/chromedriver")
     driver = webdriver.Chrome(service=chrome_service, options=chrome_options)
 
-    # Given a collection of CSV files containing the profileUrls of each follower for 1 instagram account, loop through
-    # and add the bio to each CSV file
+    # Input and output directories
     input_folder_path = "phantom_files"
     output_folder_path = "augmented_phantom_files"
 
@@ -66,6 +112,18 @@ if __name__ == '__main__':
     # var to keep track of how many requests we have made in total. Sleeping based on this
     total_profile_count = 1
 
+    # var to keep track of no responses
+    no_response_counter = {"count": 0}
+
+    # Proxies to use
+    proxies = [
+        "http://proxy1:port",
+        "http://proxy2:port",
+        "http://proxy3:port"
+        # Add more proxies here
+    ]
+
+    # Log info
     print("Accounts (csv files) to iterate through: {}".format(len(csv_files)))
 
     # counter to keep count csv files we iterated through
@@ -104,7 +162,13 @@ if __name__ == '__main__':
                 delay = random.uniform(1, 2)
                 sleep(delay)
 
-            bio = get_profile_description(profileUrl, driver)
+            # Get bio
+            try:
+                bio = get_profile_description(profileUrl, driver, no_response_counter, proxies, chrome_options)
+            except AllProxiesExhaustedException:
+                print("All proxies exhausted")
+                pass
+
             bios_list.append(bio)
             profile_counter += 1
             total_profile_count += 1
